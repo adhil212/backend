@@ -39,7 +39,6 @@ const login = async (req, res) => {
 };
 
 const register = async (req, res) => {
-  
   try {
     const { name, email, password } = req.body;
 
@@ -57,13 +56,77 @@ const register = async (req, res) => {
       orders: [],
     });
     await newuser.save();
-    res.json(newuser);
+
+    res.json({
+      _id: newuser._id,
+      name: newuser.name,
+      email: newuser.email,
+      role: newuser.role,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
+const getallusers = async (req, res) => {
+  try {
+    const users = await User.find().select("-password -cart");
+
+    if (users.length === 0) {
+      return res.status(400).json({ message: "no users found" });
+    }
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+const getuserbyid = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id).select("-password -cart");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+const deleteuser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log(id)
+
+    const user = await User.findByIdAndDelete(id);
+
+    if (user.length==0) {
+      return res.status(400).json({ message: "user not found" });
+    }
+    res.json({ message: "user deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const rolechanger=async(req,res)=>{
+  try {
+    const {id}=req.params
+    const user=awaitUser.findByIdAndUpdate(id)
+  } catch (error) {
+   res.status(500).json({ error: error.message });
+ 
+  }
+  
+
+
+}
+
 module.exports = {
   register,
   login,
+  getallusers,
+  getuserbyid,
+  deleteuser,
+  rolechanger
 };

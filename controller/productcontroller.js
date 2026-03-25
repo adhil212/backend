@@ -11,6 +11,7 @@ const getallproduct = asyncErrorResolver( async (req,res)=>{
   if (brand && brand !== "All") {
     query.brand = brand;
   }
+  
   if (search) {
     query.$or = [
       { name: { $regex: search, $options: "i" } }
@@ -29,9 +30,9 @@ const getallproduct = asyncErrorResolver( async (req,res)=>{
     products = products.sort({ price: -1 });
   }
  const allproducts= await products
-  if(allproducts.length ==0){
-    return res.status(404).json({message:"no product found"})
-  }
+  // if(allproducts.length ==0){
+  //   return res.status(404).json({message:"no product found"})
+  // }
    res.status(200).json({
     status: "Success",
     results: allproducts.length,
@@ -44,7 +45,7 @@ const getproductbyid = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const product = await Product.findOne({ id });
+    const product = await Product.findById( id );
     res.json(product);
   } catch (error) {
     res.status(500).json({ error: error.message });
