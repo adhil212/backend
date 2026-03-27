@@ -109,18 +109,35 @@ const deleteuser = async (req, res) => {
   }
 };
 
-const rolechanger=async(req,res)=>{
+const rolechanger = async (req, res) => {
   try {
-    const {id}=req.params
-    const user=awaitUser.findByIdAndUpdate(id)
+    const { id } = req.params;
+
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Toggle role
+    user.role = user.role === "admin" ? "user" : "admin";
+
+    await user.save();
+
+    res.json({
+      message: "Role updated successfully",
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
+
   } catch (error) {
-   res.status(500).json({ error: error.message });
- 
+    res.status(500).json({ error: error.message });
   }
-  
-
-
-}
+};
 
 module.exports = {
   register,

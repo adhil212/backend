@@ -1,19 +1,38 @@
+const express = require("express");
+const router = express.Router();
+const crypto = require("crypto");
+
 const User = require("../models/user");
 const Product = require("../models/product");
 
-const checkout = async (req, res) => {
+const verifyPayment = async (req, res) => {
   try {
 
     const userId = req.user.id; 
-    const { address, paymentMethod } = req.body;
+
+    const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      address,
+      paymentMethod
+    } = req.body;
+
+   
+    const generatedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(razorpay_order_id + "|" + razorpay_payment_id)
+      .digest("hex");
+
+    if (generatedSignature !== razorpay_signature) {
+      return res.status(400).json({ message: "Invalid payment" });
+    }
+
+    
 
     const user = await User.findById(userId).populate("cart.productId");
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    if (user.cart.length === 0) {
+    if (!user || user.cart.length === 0) {
       return res.status(400).json({ message: "Cart empty" });
     }
 
@@ -48,13 +67,12 @@ const checkout = async (req, res) => {
     };
 
     user.orders.push(order);
-
-    user.cart = []; 
+    user.cart = [];
 
     await user.save();
 
     res.json({
-      message: "Order placed successfully",
+      message: "Payment verified & order placed",
       order,
     });
 
@@ -63,4 +81,6 @@ const checkout = async (req, res) => {
   }
 };
 
-module.exports = { checkout };
+router.post("/", verifyPayment);
+
+module.exports = router;

@@ -1,14 +1,23 @@
 const mongoose = require("mongoose")
+const orderItemSchema = new mongoose.Schema({
+  productId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "products", // your model name
+  },
+  qty: Number,
+});
 
-const orderschema=new mongoose.Schema({
-   orderId:String,
-  items:Array,
-  address:Object,
-  paymentMethod:String,
-  totalAmount:Number,
-  status:String,
-  date:String
-})
+const orderschema = new mongoose.Schema({
+  orderId: String,
+  items: [orderItemSchema], // ✅ FIXED
+  address: Object,
+  paymentMethod: String,
+  totalAmount: Number,
+  status: String,
+  date: String,
+});
+
+
 const cartItemSchema = new mongoose.Schema({
   productId: {
     type: mongoose.Schema.Types.ObjectId,

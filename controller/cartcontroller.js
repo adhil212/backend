@@ -1,10 +1,12 @@
 const User = require("../models/user");
-const Product = require("../models/product")
+const Product = require("../models/product");
 
+// ADD TO CART
 const addtocart = async (req, res) => {
   try {
-    const { userId, productId } = req.body;
-    const qty = Number(req.body.qty)
+    const userId = req.user.id; 
+    const { productId } = req.body;
+    const qty = Number(req.body.qty);
 
     const user = await User.findById(userId);
 
@@ -31,16 +33,18 @@ const addtocart = async (req, res) => {
       message: "Product added to cart",
       cart: user.cart,
     });
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
+// GET CART
 const getcart = async (req, res) => {
   try {
-    const id = req.params.userid;
+    const userId = req.user.id; // ✅ from JWT
 
-    const user = await User.findById( id ).populate("cart.productId");
+    const user = await User.findById(userId).populate("cart.productId");
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -58,14 +62,17 @@ const getcart = async (req, res) => {
     }));
 
     res.json(cart);
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
+// UPDATE CART
 const updateCart = async (req, res) => {
   try {
-
-    const { userId, productId, qty } = req.body;
+    const userId = req.user.id; 
+    const { productId, qty } = req.body;
 
     const user = await User.findById(userId);
 
@@ -85,10 +92,12 @@ const updateCart = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+// REMOVE FROM CART
 const removeFromCart = async (req, res) => {
   try {
-
-    const { userId, productId } = req.body;
+    const userId = req.user.id; // ✅ from JWT
+    const { productId } = req.body;
 
     const user = await User.findById(userId);
 
@@ -105,4 +114,4 @@ const removeFromCart = async (req, res) => {
   }
 };
 
-module.exports = { addtocart, getcart,updateCart,removeFromCart };
+module.exports = { addtocart, getcart, updateCart, removeFromCart };

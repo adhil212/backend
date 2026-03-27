@@ -1,8 +1,20 @@
-const express=require("express")
+const express = require("express");
+const router = express.Router();
 
-const router=express.Router()
-const {getallproduct,getproductbyid}=require("../controller/productcontroller")
+const {
+  getallproduct,
+  getproductbyid,
+  deleteProduct,
+} = require("../controller/productcontroller");
 
-router.get("/",getallproduct)
-router.get("/:id",getproductbyid)
-module.exports=router
+const protect = require("../middleware/authMiddleware");
+const isAdmin = require("../middleware/adminmiddleware");
+
+
+router.get("/", getallproduct);
+router.get("/:id", getproductbyid);
+
+
+router.delete("/:id", protect, isAdmin, deleteProduct);
+
+module.exports = router;

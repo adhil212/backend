@@ -3,8 +3,7 @@ const router = express.Router();
 
 const { getOrders, cancelOrder } = require("../controller/ordercontroller");
 
-router.get("/:userId", getOrders);
-
+router.get("/", getOrders);
 router.delete("/cancel", cancelOrder);
 
 module.exports = router; 
